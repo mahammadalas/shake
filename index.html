@@ -1,47 +1,40 @@
 <!doctype html>
-<html lang="az"><meta charset="utf-8" />
+<html lang="en">
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Add SHKL to MetaMask</title>
-<button id="add">Add SHKL to MetaMask</button>
+<style>
+ body{margin:0;background:#0b1b2b;color:#eaf2ff;font-family:system-ui;display:grid;place-items:center;height:100dvh}
+ .card{background:#11263b;border-radius:16px;padding:28px 32px;box-shadow:0 10px 30px rgba(0,0,0,.35);text-align:center}
+ img{width:96px;height:96px;border-radius:50%;display:block;margin:0 auto 12px}
+ button{background:#0C3C78;border:none;color:#fff;font-weight:700;padding:12px 18px;border-radius:12px;cursor:pointer}
+</style>
+<div class="card">
+  <img id="logo" alt="SHKL"/>
+  <h1>SHEKEL (SHKL)</h1>
+  <p>Base mainnet • ERC-20</p>
+  <button id="btn">Add SHKL to MetaMask</button>
+</div>
 <script>
-  const token = {
-    address: "0x4feff57c5a2c256b037021a71b5de55601ffd59c0", // lowercase
-    symbol:  "SHKL",
-    decimals: 18,
-    image:   "https://amaranth-worthwhile-amphibian-987.mypinata.cloud/ipfs/bafybeibkvcrh2kznq6wygidgia7pshtsqazuxme7wbkwzodaqklnanuuie"
-  };
+ const contractAddress = "0x_YENI_MAINNET_UNVANIN_"; // <-- BURANI DƏYİŞ
+ const image = "https://amaranth-worthwhile-amphibian-987.mypinata.cloud/ipfs/bafybeibkvcrh2kznq6wygidgia7pshtsqazuxme7wbkwzodaqklnanuuie"; // <-- Loqo (HTTPS)
+ const chainId = "0x2105"; // Base mainnet 8453
+ const symbol = "SHKL"; const decimals = 18;
 
-  const BASE_SEPOLIA = {
-    chainId: "0x14a34", // 84532
-    chainName: "Base Sepolia",
-    nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
-    rpcUrls: ["https://sepolia.base.org"],
-    blockExplorerUrls: ["https://base-sepolia.blockscout.com"]
-  };
+ document.getElementById('logo').src = image;
 
-  async function ensureBaseSepolia() {
-    const id = await ethereum.request({ method: "eth_chainId" });
-    if (id !== BASE_SEPOLIA.chainId) {
-      try { await ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: BASE_SEPOLIA.chainId }] }); }
-      catch (e) {
-        if (e.code === 4902) { await ethereum.request({ method: "wallet_addEthereumChain", params: [BASE_SEPOLIA] }); }
-        else throw e;
-      }
-    }
-  }
-
-  document.getElementById("add").onclick = async () => {
-    try {
-      if (!window.ethereum) throw new Error("MetaMask tapılmadı");
-      await ensureBaseSepolia();
-      const ok = await ethereum.request({
-        method: "wallet_watchAsset",
-        params: { type: "ERC20", options: token }
-      });
-      alert(ok ? "SHKL əlavə olundu ✅" : "İstifadəçi ləğv etdi.");
-    } catch (err) {
-      alert("Xəta: " + (err?.message || err));
-      console.error(err);
-    }
-  };
+ async function add(){
+   if(!window.ethereum) return alert("MetaMask tapılmadı.");
+   const current = await ethereum.request({method:'eth_chainId'});
+   if(current !== chainId){
+     await ethereum.request({method:'wallet_switchEthereumChain', params:[{chainId}]});
+   }
+   await ethereum.request({method:'eth_requestAccounts'});
+   const ok = await ethereum.request({
+     method:'wallet_watchAsset',
+     params:{ type:'ERC20', options:{ address:contractAddress, symbol, decimals, image } }
+   });
+   if(!ok) alert("İstifadəçi ləğv etdi.");
+ }
+ document.getElementById('btn').onclick = add;
 </script>
 </html>
