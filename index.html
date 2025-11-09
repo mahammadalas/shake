@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="az">
+  <meta charset="utf-8" />
+  <title>Add SHKL</title>
+  <style>
+    body{display:grid;place-items:center;height:100vh;font-family:system-ui}
+    button{padding:14px 22px;border-radius:10px;border:0;font-weight:700}
+  </style>
+  <button id="add">Add SHKL to MetaMask</button>
+  <script>
+    const tokenAddress  = "0x4fEfF57c5A2c256b037021A71B5De55601fFd59C0";
+    const tokenSymbol   = "SHKL";
+    const tokenDecimals = 18;
+    const tokenImage    = "https://amaranth-worthwhile-amphibian-987.mypinata.cloud/ipfs/bafybeibkvcrh2kznq6wygidgia7pshtsqazuxme7wbkwzodaqklnanuuie";
+
+    async function ensureBaseSepolia() {
+      try {
+        await ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x14A34' }] });
+      } catch (e) {
+        if (e.code === 4902) {
+          await ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [{
+              chainId: '0x14A34',
+              chainName: 'Base Sepolia',
+              nativeCurrency: { name: 'Sepolia ETH', symbol: 'ETH', decimals: 18 },
+              rpcUrls: ['https://sepolia.base.org'],
+              blockExplorerUrls: ['https://base-sepolia.blockscout.com']
+            }]
+          });
+        } else throw e;
+      }
+    }
+
+    document.getElementById('add').onclick = async () => {
+      if (!window.ethereum) return alert('MetaMask lazımdır.');
+      try {
+        await ensureBaseSepolia();
+        await ethereum.request({
+          method: 'wallet_watchAsset',
+          params: { type: 'ERC20', options: { address: tokenAddress, symbol: tokenSymbol, decimals: tokenDecimals, image: tokenImage } }
+        });
+      } catch (e) { alert('Xəta: ' + e.message); }
+    };
+  </script>
+</html>
